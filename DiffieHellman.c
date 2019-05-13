@@ -122,7 +122,8 @@ int main(int argc, char *argv[]){
     while(1){
         n = read(sockfd, buffer, 255);
         printf("read n is %d\n", n);
-        if(!strcmp(buffer,"\n")){
+        printf("bufferrr   %s\n\n",buffer);
+        if(!strncmp(buffer,"\n",1)){
             buffer[n] = 0;
             break;
         }
