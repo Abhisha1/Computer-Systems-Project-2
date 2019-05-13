@@ -22,7 +22,6 @@ int modulo(int a, int b, int n){
 }
 
 int main(int argc, char *argv[]){
-    printf("rnning main\n");
     int g,p;
 
     g = 15;
@@ -41,15 +40,9 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
     char privKey[5];
-    // memset(privKey,0,0);
     memcpy(privKey, argv[2], 2);
     privKey[2] = '\0';
-    printf("privKey is %s\n\n", privKey);
-    // char hex[10];
-    // snprintf(hex, 2, "0x%s",privKey);
-    // printf("hex is %s\n\n", hex);
     int b = (int)strtol(privKey, NULL, 16);
-    printf("b is %d\n\n", b);
     portno = 7800;
 
     /* Translate host name into peer's IP address ;
@@ -92,25 +85,18 @@ int main(int argc, char *argv[]){
     printf("send username\n");
     char *username = "nirmalathasa"; 
     n = write(sockfd, username, strlen(username));
-    printf("n  is %d\n", n);
     n = write(sockfd, "\n", 1);
-    printf("n  is %d\n", n);
     if (n < 0)
         {
             perror("ERROR writing to socket");
             exit(EXIT_FAILURE);
         }
-    printf("g: %d, b: %d, p: %d\n", g,b,p);
-    // long int numerator = (int)pow(g,b);
-    // printf("numerator: %ld\n", numerator);
-    // int val = numerator%p;
-    int val = modulo(g,b,p);
-    printf("my key is is %d\n", val);
-    char value[100];
-    sprintf(value,"%d", val);
-    for(int i=0; i < strlen(value); i++){
-        printf("write value  is %s\n", value);
-        n = write(sockfd, value, 1);
+    int client_secret = modulo(g,b,p);
+    printf("my key is is %d\n", client_secret);
+    char secret[100];
+    sprintf(secret,"%d", client_secret);
+    for(int i=0; i < strlen(secret); i++){
+        n = write(sockfd, &secret[i], 1);
         if (n < 0)
         {
             perror("ERROR writing to socket");
@@ -118,26 +104,16 @@ int main(int argc, char *argv[]){
         }
     }
     n = write(sockfd, "\n", 1);
-    printf("write newline n is %d\n", n);
-    while(1){
-        n = read(sockfd, buffer, 255);
-        printf("read n is %d\n", n);
-        printf("bufferrr %s and size if %d\n\n",buffer, strlen(buffer));
-        if(!strncmp(buffer,"\n",1)){
-            printf("is newline");
-            buffer[n] = 0;
-            break;
-        }
-        // buffer[n] = 0;
+    n = read(sockfd, buffer, 255);
+    if(!strncmp(buffer,"\n",1)){
+        buffer[n] = 0;
     }
     buffer[n] = 0;
     int responseDiffie = atoi(buffer);
-    printf("response is %d\n", responseDiffie);
-    char sec[100];
-    sprintf(sec,"%d",modulo(val, responseDiffie, p));
-    printf("final is %s\n", sec);
-    for(int i=0; i < strlen(value); i++){
-        n = write(sockfd, value, 1);
+    char shared_value[100];
+    sprintf(shared_value,"%d",modulo(responseDiffie, b, p));
+     for(int i=0; i < strlen(shared_value); i++){
+        n = write(sockfd, &shared_value[i], 1);
         if (n < 0)
         {
             perror("ERROR writing to socket");
