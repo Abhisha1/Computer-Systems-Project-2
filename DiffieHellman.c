@@ -109,7 +109,7 @@ int main(int argc, char *argv[]){
     char value[100];
     sprintf(value,"%d", val);
     for(int i=0; i < strlen(value); i++){
-        printf("value  is %s\n", value);
+        printf("write value  is %s\n", value);
         n = write(sockfd, value, 1);
         if (n < 0)
         {
@@ -118,10 +118,10 @@ int main(int argc, char *argv[]){
         }
     }
     n = write(sockfd, "\n", 1);
-    printf("n is %d\n", n);
+    printf("write newline n is %d\n", n);
     while(1){
         n = read(sockfd, buffer, 255);
-        printf("n is %d\n", n);
+        printf("read n is %d\n", n);
         if(!strcmp(buffer,"\n")){
             buffer[n] = 0;
             break;
