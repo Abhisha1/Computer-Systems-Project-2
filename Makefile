@@ -2,7 +2,7 @@ CC     = gcc
 CFLAGS = -Wall -std=c99 -g
 # modify the flags here ^
 EXE    = crack
-OBJ    = proj-2_sha256.o decrypt.o
+OBJ    = proj-2_sha256.o decrypt.o hashtable.o
 # add any new object files here ^
 # top (default) target
 all: $(EXE)
@@ -10,7 +10,6 @@ all: $(EXE)
 # how to link executable
 $(EXE): $(OBJ)
 	$(CC) $(CFLAGS) -o $(EXE) $(OBJ) -lm
-
 
 # ^ add any new dependencies here (for example if you add new modules)
 
