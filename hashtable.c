@@ -22,6 +22,7 @@ struct bucket {
 struct table {
 	int size; //number of buckets
 	Bucket *buckets; //list of buckets
+    int remaining;
 };
 
 /************************************************************************/
@@ -72,6 +73,7 @@ HashTable *new_hash_table(int size) {
 	assert(table);
 	table->size = size;
 	table->buckets = malloc(size * (sizeof *table->buckets));
+    table->remaining = size;
 	assert(table->buckets);
 	int i;
 	for (i = 0; i < size; i++) {
@@ -150,7 +152,9 @@ int hash_table_get(HashTable *table, char *key) {
 	for (int i=0; i < bucket->n_elems; i++){
 		if (equal(bucket->keys[i], key)){
 			freq = bucket->values[i];
+            bucket->keys[i] = "";
 			move_to_front(bucket, i);
+            table->remaining--;
 			break;
 		}
 	}
@@ -169,8 +173,15 @@ bool hash_table_has(HashTable *table, char *key) {
 	Bucket *bucket = &table->buckets[hash_value];
 	for (int i=0; i < bucket->n_elems; i++){
 		if (equal(bucket->keys[i], key)){
+            // reset hash to avoid duplicate keys
+            bucket->keys[i] = "";
+            table->remaining--;
 			return true;
 		}
 	}
 	return false;
+}
+/************************************************************************/
+int remaining_hashes(HashTable *table){
+    return table->remaining;
 }

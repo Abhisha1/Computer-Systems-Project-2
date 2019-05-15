@@ -22,3 +22,6 @@ int hash_table_get(HashTable *table, char *key);
 
 //Checks if the key exists in hash table
 bool hash_table_has(HashTable *table, char *key);
+
+// Returns the remaining values inside hashtable
+int remaining_hashes(HashTable *table);
