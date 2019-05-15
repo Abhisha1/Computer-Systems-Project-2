@@ -29,9 +29,48 @@ char *sha256_byteToHexString(BYTE data[]) {
 	hexS[64] = 0;
 	return hexS;
 }
-void brute_force(HashTable *ht){
+void brute_force_four(HashTable *ht){
+    printf("brute force\n");
     char brute_guess[4];
     SHA256_CTX ctx;
+    int hash;
+    for(int i=65;i < 127; i++){
+        brute_guess[0] = (char)i;
+        for(int j=33;j < 127; j++){
+            brute_guess[1] = (char)j;
+            for(int k=33;k < 127; k++){
+                brute_guess[2] = (char)k;
+                for(int l=33;l < 127; l++){
+                    brute_guess[3] = (char)l;
+                    brute_guess[4] = '\0';
+                    sha256_init(&ctx);
+                    sha256_update(&ctx, brute_guess, strlen(brute_guess));
+                    BYTE guess[32];
+                    sha256_final(&ctx, guess);
+                    char* hex_guess = sha256_byteToHexString(guess);
+                    // printf("%s\n", brute_guess);
+                    if ((hash = hash_table_get(ht, hex_guess))>0){
+                        printf("%s %d\n", brute_guess, hash);
+                        printf("remaining passwords are : %d\n", remaining_hashes(ht));
+                    }
+                    if (remaining_hashes(ht) == 0){
+                        break;
+                    }
+                }
+            }
+        }
+        if(i == 127){
+            i = 33;
+        }
+        else if(i == 64){
+            break;
+        }
+    }
+}
+void brute_force_six(HashTable *ht){
+    char brute_guess[6];
+    SHA256_CTX ctx;
+    int hash;
     for(int i=33;i < 127; i++){
         brute_guess[0] = (char)i;
         for(int i=33;i < 127; i++){
@@ -40,14 +79,24 @@ void brute_force(HashTable *ht){
                 brute_guess[2] = (char)i;
                 for(int i=33;i < 127; i++){
                     brute_guess[3] = (char)i;
-                    brute_guess[4] = '\0';
-                    sha256_init(&ctx);
-                    sha256_update(&ctx, brute_guess, strlen(brute_guess));
-                    BYTE guess[32];
-                    sha256_final(&ctx, guess);
-                    char* hex_guess = sha256_byteToHexString(guess);
-                    if (hash_table_has(ht, hex_guess)){
-                        printf("Password is %s\n", brute_guess);
+                    for(int i=33;i < 127; i++){
+                        brute_guess[4] = (char)i;
+                        for(int i=33;i < 127; i++){
+                            brute_guess[5] = (char)i;
+                            brute_guess[6] = '\0';
+                            sha256_init(&ctx);
+                            sha256_update(&ctx, brute_guess, strlen(brute_guess));
+                            BYTE guess[32];
+                            sha256_final(&ctx, guess);
+                            char* hex_guess = sha256_byteToHexString(guess);
+                            if ((hash = hash_table_get(ht, hex_guess))>0){
+                                printf("%s %d\n", brute_guess, hash);
+                                printf("remaining passwords are : %d\n", remaining_hashes(ht));
+                            }
+                            if (remaining_hashes(ht) == 0){
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -57,20 +106,22 @@ void brute_force(HashTable *ht){
 void generate_guesses(int n_guesses, HashTable *ht){
     FILE* file = fopen("proj-2_common_passwords.txt", "r");
     char line[20];
-    // SHA256_CTX ctx;
-    // while (fgets(line, sizeof(line), file)){
-    //     line[4] = '\0';
-    //     // printf("%s\n", line);
-    //     sha256_init(&ctx);
-    //     sha256_update(&ctx, line, strlen(line));
-    //     BYTE guess[32];
-    //     sha256_final(&ctx, guess);
-    //     char* hex_guess = sha256_byteToHexString(guess);
-    //     if (hash_table_has(ht, hex_guess)){
-    //         printf("Password is %s\n", line);
-    //     }
-    //     // printf("%s\n", hex_guess);
-    // }
+    SHA256_CTX ctx;
+    int hash;
+    while (fgets(line, sizeof(line), file) && remaining_hashes(ht) > 0){
+        line[4] = '\0';
+        // printf("%s\n", line);
+        sha256_init(&ctx);
+        sha256_update(&ctx, line, strlen(line));
+        BYTE guess[32];
+        sha256_final(&ctx, guess);
+        char* hex_guess = sha256_byteToHexString(guess);
+        if ((hash = hash_table_get(ht, hex_guess))>0){
+            printf("%s %d\n", line, hash);
+            printf("remaining passwords are : %d\n", remaining_hashes(ht));
+        }
+    }
+    printf("finished file");
     fclose(file);
 }
 
@@ -87,13 +138,13 @@ void read_hash_file(FILE *file){
         // printf("%s",hashes);
         char **words = store_password_hashes(hashes);
 
-        HashTable *password_hashes = new_hash_table(20);
+        HashTable *password_hashes = new_hash_table(10);
         for(int i=0; i < strlen(hashes)/64; i++){
             printf("%d:    %s\n", i, words[i]);
-            hash_table_put(password_hashes, words[i], 1);
+            hash_table_put(password_hashes, words[i], (i+1));
         };
         generate_guesses(10, password_hashes);
-        brute_force(password_hashes);
+        brute_force_four(password_hashes);
         for(int i=0; i < strlen(hashes)/64; i++){
             printf("%d:    %s\n", i, words[i]);
             free(words[i]);
