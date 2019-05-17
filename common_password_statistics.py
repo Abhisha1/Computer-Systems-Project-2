@@ -81,6 +81,23 @@ def create_common_password_substitutions():
     replacements.close()
     f.close()
 
+def get_character_frequencies():
+    f = open("proj-2_common_passwords.txt", "r")
+    words = f.readlines()
+    f.close()
+    frequency = {}
+    for x in words:
+        for c in x:
+            if (c != "\n" and c != " "):
+                if (c in frequency.keys()):
+                    frequency[c]+=1
+                else:
+                    frequency[c] = 1
+    f = open("common_password_frequency.txt", "w")
+    for x in sorted(frequency.items(), key=lambda item: item[1], reverse=True):
+        f.write(x[0])
+        f.write("\n")
+    f.close()
 
-
-create_common_password_substitutions()
+# create_common_password_substitutions()
+get_character_frequencies()

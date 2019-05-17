@@ -2,7 +2,7 @@ CC     = gcc
 CFLAGS = -Wall -std=c99 -g
 # modify the flags here ^
 EXE    = crack
-OBJ    = proj-2_sha256.o decrypt.o hashtable.o
+OBJ    = proj-2_sha256.o sha256-helper.o passwords.o four_password_strategy.o six_password_strategy.o decrypt.o hashtable.o
 # add any new object files here ^
 # top (default) target
 all: $(EXE)
