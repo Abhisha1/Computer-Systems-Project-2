@@ -13,3 +13,7 @@ int remaining_passwords(Passwords *pwrds);
 void free_passwords(Passwords* pwrds);
 
 void print_passwords(Passwords* pwrds);
+
+int generate_common_subs_four(Passwords* solved, int n_guesses, HashTable *ht);
+
+int generate_common_subs_six(Passwords* solved, int n_guesses, HashTable *ht);

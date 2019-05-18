@@ -2,6 +2,8 @@
 #include <assert.h>
 #include "proj-2_sha256.h"
 #include "sha256-helper.h"
+
+// adapted from https://github.com/RemyNoulin/sha256
 char *sha256_byteToHexString(BYTE data[]) {
 	char *hexC = "0123456789abcdef";
 	char *hexS = malloc(65);

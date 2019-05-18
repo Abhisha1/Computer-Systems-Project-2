@@ -8,11 +8,14 @@
 #include "four_password_strategy.h"
 #include "sha256-helper.h"
 #include "passwords.h"
-void brute_force_four(HashTable *ht, Passwords* solved){
+void brute_force_four(HashTable *ht, Passwords* solved, int n_guesses){
     printf("brute force\n");
     char brute_guess[4];
     SHA256_CTX ctx;
     int hash;
+    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+        return;
+    }
     for(int i=65;i < 127; i++){
         brute_guess[0] = (char)i;
         for(int j=33;j < 127; j++){
@@ -32,10 +35,12 @@ void brute_force_four(HashTable *ht, Passwords* solved){
                         printf("%s %d\n", brute_guess, hash);
                         add_new_cracked(solved, brute_guess);
                         printf("remaining passwords are : %d\n", remaining_hashes(ht));
+                        n_guesses = generate_common_subs_four(solved,n_guesses,ht);
                     }
                     free(hex_guess);
-                    if (remaining_hashes(ht) == 0){
-                        break;
+                    n_guesses--;
+                    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+                        return;
                     }
                 }
             }
@@ -49,7 +54,7 @@ void brute_force_four(HashTable *ht, Passwords* solved){
     }
 }
 
-int popular_character_guess_four(HashTable *ht, Passwords* solved){
+int popular_character_guess_four(HashTable *ht, Passwords* solved, int n_guesses){
     printf("popular character guess strategy\n");
     char brute_guess[4];
     SHA256_CTX ctx;
@@ -58,6 +63,10 @@ int popular_character_guess_four(HashTable *ht, Passwords* solved){
     FILE *file = fopen("common_password_frequency.txt", "r");
     char frequent_characters[60];
     int index = 0;
+    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+        fclose(file);
+        return 0;
+    }
     while (fgets(line, sizeof(line), file)){
         line[1] = '\0';
         frequent_characters[index] = line[0];
@@ -82,24 +91,26 @@ int popular_character_guess_four(HashTable *ht, Passwords* solved){
                         printf("%s %d\n", brute_guess, hash);
                         add_new_cracked(solved, brute_guess);
                         printf("remaining passwords are : %d\n", remaining_hashes(ht));
+                        n_guesses = generate_common_subs_four(solved,n_guesses,ht);
                     }
                     free(hex_guess);
-                    if (remaining_hashes(ht) == 0){
-                        break;
+                    n_guesses--;
+                    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+                        return 0;
                     }
                 }
             }
         }
     }
-    return 0;
+    return n_guesses;
 }
 
-void generate_guesses_four(int n_guesses, HashTable *ht, Passwords* solved){
+int generate_guesses_four(int n_guesses, HashTable *ht, Passwords* solved){
     FILE* file = fopen("proj-2_common_passwords.txt", "r");
     char line[20];
     SHA256_CTX ctx;
     int hash;
-    while (fgets(line, sizeof(line), file) && remaining_hashes(ht) > 0){
+    while (fgets(line, sizeof(line), file) && remaining_hashes(ht) > 0 && n_guesses != 0){
         line[4] = '\0';
         // printf("%s\n", line);
         sha256_init(&ctx);
@@ -110,11 +121,13 @@ void generate_guesses_four(int n_guesses, HashTable *ht, Passwords* solved){
         if ((hash = hash_table_get(ht, hex_guess))>0){
             printf("%s %d\n", line, hash);
             add_new_cracked(solved, line);
-            print_passwords(solved);
             printf("remaining passwords are : %d\n", remaining_hashes(ht));
+            n_guesses = generate_common_subs_four(solved,n_guesses,ht);
         }
+        n_guesses--;
         free(hex_guess);
     }
-    printf("finished file");
+    printf("finished file\n");
     fclose(file);
+    return n_guesses;
 }
