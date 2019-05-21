@@ -14,15 +14,17 @@ struct passwords {
 	char **cracked; //array of words
 	int passwords_left;
     int current_size;
+    int n_guesses;
 };
 
-Passwords* create_passwords(int passwords_to_guess){
+Passwords* create_passwords(int passwords_to_guess, int n_guesses){
     Passwords* passwords = malloc(sizeof *passwords);
     assert(passwords);
     passwords->cracked = malloc(sizeof(char*)*passwords_to_guess);
     assert(passwords->cracked);
     passwords->passwords_left = passwords_to_guess;
     passwords->current_size = 0;
+    passwords->n_guesses = n_guesses;
     return passwords;
 }
 
@@ -52,9 +54,16 @@ void print_passwords(Passwords* pwrds){
     }
 }
 
+void made_guess(Passwords* pwrds){
+    pwrds->n_guesses--;
+}
 
-int generate_common_subs_four(Passwords* solved, int n_guesses, HashTable *ht){
-    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+int get_remaining_guesses(Passwords* pwrds){
+    return pwrds->n_guesses;
+}
+
+int generate_common_subs_four(Passwords* solved, HashTable *ht){
+    if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
         return 0;
     }
     char **subs;
@@ -111,8 +120,8 @@ int generate_common_subs_four(Passwords* solved, int n_guesses, HashTable *ht){
                         printf("remaining passwords are : %d\n", remaining_hashes(ht));
                     }
                     free(hex_guess);
-                    n_guesses--;
-                    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+                    made_guess(solved);
+                    if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
                         return 0;
                     }
                 }
@@ -128,12 +137,12 @@ int generate_common_subs_four(Passwords* solved, int n_guesses, HashTable *ht){
     free(characters);
     free(subs);
     free(subs_size);
-    return n_guesses;
+    return get_remaining_guesses(solved);
 }
 
 
-int generate_common_subs_six(Passwords* solved, int n_guesses, HashTable *ht){
-    if (remaining_hashes(ht) == 0 || n_guesses == 0){
+int generate_common_subs_six(Passwords* solved, HashTable *ht){
+    if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
         return 0;
     }
     char **subs;
@@ -194,8 +203,8 @@ int generate_common_subs_six(Passwords* solved, int n_guesses, HashTable *ht){
                                 printf("remaining passwords are : %d\n", remaining_hashes(ht));
                             }
                             free(hex_guess);
-                            n_guesses--;
-                            if (remaining_hashes(ht) == 0 || n_guesses == 0){
+                            made_guess(solved);
+                            if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
                                 return 0;
                             }
                         }
@@ -210,5 +219,5 @@ int generate_common_subs_six(Passwords* solved, int n_guesses, HashTable *ht){
     free(characters);
     free(subs);
     free(subs_size);
-    return n_guesses;
+    return get_remaining_guesses(solved);
 }

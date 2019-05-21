@@ -10,6 +10,7 @@
 #include <math.h>
 #include <unistd.h>
 int modulo(int a, int b, int n){
+    // adapted from Wikipedia pow explanation
     long long x=1, y=a; 
     while (b > 0) {
         if (b%2 == 1) {
@@ -81,8 +82,7 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
-    /* Do processing */
-    printf("send username\n");
+    /* Sends username*/
     char *username = "nirmalathasa"; 
     n = write(sockfd, username, strlen(username));
     n = write(sockfd, "\n", 1);
@@ -91,8 +91,8 @@ int main(int argc, char *argv[]){
             perror("ERROR writing to socket");
             exit(EXIT_FAILURE);
         }
+    /* Sends secret*/
     int client_secret = modulo(g,b,p);
-    printf("my key is is %d\n", client_secret);
     char secret[100];
     sprintf(secret,"%d", client_secret);
     for(int i=0; i < strlen(secret); i++){
@@ -104,11 +104,13 @@ int main(int argc, char *argv[]){
         }
     }
     n = write(sockfd, "\n", 1);
+    /* Recieves secret*/
     n = read(sockfd, buffer, 255);
     if(!strncmp(buffer,"\n",1)){
         buffer[n] = 0;
     }
     buffer[n] = 0;
+    /* Applies b to sent message*/
     int responseDiffie = atoi(buffer);
     char shared_value[100];
     sprintf(shared_value,"%d",modulo(responseDiffie, b, p));
