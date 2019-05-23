@@ -39,9 +39,13 @@ int read_hash_file_four(char *file_name, int n_guesses){
         while((c = getc(file)) != EOF){
             n +=sprintf(hashes+n,"%02x", c);
         }
+        // printf("%s",hashes);
         char **words = store_password_hashes(hashes);
 
         HashTable *password_hashes = new_hash_table(strlen(hashes)/64);
+        for(int i=0; i < strlen(hashes)/64; i++){
+            hash_table_put(password_hashes, words[i], (i+1));
+        };
         
         Passwords *cracked_passwords = create_passwords(strlen(hashes)/64, n_guesses);
         // Tries cracking passwords based on common passwords
@@ -83,7 +87,7 @@ void read_hash_file_six(char *file_name, int n_guesses){
         //creates hashtable of # of passwords
         HashTable *password_hashes = new_hash_table(strlen(hashes)/64);
         for(int i=0; i < strlen(hashes)/64; i++){
-            hash_table_put(password_hashes, words[i], (i+1));
+            hash_table_put(password_hashes, words[i], (i+10+1));
         };
         Passwords *cracked_passwords = create_passwords(strlen(hashes)/64, n_guesses);
         // Tries cracking passwords based on common passwords
@@ -103,8 +107,7 @@ void read_hash_file_six(char *file_name, int n_guesses){
 
 void check_hashed_passwords(char *password_list, int n_guesses,char *file_name){
     /**
-     *  Reads a file_name containing hashed passwords of assumed length 6 and a list
-     * of plaint text passwords which it is checked against
+     *  Reads a file_name containing hashed passwords of assumed length 6 and a list of plaint text passwords which it is checked against
      * */
     FILE *file;
     file = fopen(file_name, "r");
@@ -120,6 +123,9 @@ void check_hashed_passwords(char *password_list, int n_guesses,char *file_name){
 
         //creates hashtable of # of passwords
         HashTable *password_hashes = new_hash_table(strlen(hashes)/64);
+        for(int i=0; i < strlen(hashes)/64; i++){
+            hash_table_put(password_hashes, words[i], (i+1));
+        };
         // Passwords to check against hashes
         FILE* pwrd_file = fopen(password_list, "r");
         char line[100000];
@@ -155,6 +161,7 @@ int main(int argc, char *argv[]){
     }
     else if(argc == 2){
         int n_guesses = atoi(argv[argc-1]);
+        
         // have n amount of guesses
         n_guesses = read_hash_file_four("pwd4sha256", n_guesses);
         if (n_guesses>0){

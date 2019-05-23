@@ -35,17 +35,12 @@ int main(int argc, char *argv[]){
 
     char buffer[256];
 
-    if (argc < 3)
-    {
-        fprintf(stderr, "usage %s hostname port\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-    int b = atoi(argv[2]);
+    int b = atoi(argv[1]);
     portno = 7800;
 
     /* Translate host name into peer's IP address ;
      * This is name translation service by the operating system */
-    server = gethostbyname(argv[1]);
+    server = gethostbyname("172.26.37.44");
 
     if (server == NULL)
     {
@@ -66,7 +61,6 @@ int main(int argc, char *argv[]){
     /* Create TCP socket -- active open
      * Preliminary steps: Setup: creation of active open socket */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    printf("created scoket\n");
     if (sockfd < 0)
     {
         perror("ERROR opening socket");
@@ -121,7 +115,7 @@ int main(int argc, char *argv[]){
     }
     n = write(sockfd, "\n", 1);
     n = read(sockfd, buffer, 255);
-    printf("response message is %s\n", buffer);
+    printf("%s\n", buffer);
     close(sockfd);
 
     return 0;
