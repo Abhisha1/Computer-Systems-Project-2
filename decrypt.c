@@ -132,9 +132,12 @@ void check_hashed_passwords(char *password_list, int n_guesses,char *file_name){
         memset(line, 0, 100000);
         SHA256_CTX ctx;
         int hash;
+        char *ret;
+        const char newline = '\n';
         while (fgets(line, sizeof(line), pwrd_file) && remaining_hashes(password_hashes) > 0){
-            line[6] = '\0';
-            
+            // line[6] = '\0';
+            ret = strchr(line, newline);
+            line[strlen(line)-strlen(ret)] = '\0';
             sha256_init(&ctx);
             sha256_update(&ctx, (BYTE*)line, strlen(line));
             BYTE guess[32];
