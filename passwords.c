@@ -12,12 +12,15 @@
 
 struct passwords {
 	char **cracked; //array of words
-	int passwords_left;
-    int current_size;
-    int n_guesses;
+	int passwords_left; // passwords left to crack
+    int current_size; //current number of passwords solved
+    int n_guesses; // number of permitted guesses
 };
 
 Passwords* create_passwords(int passwords_to_guess, int n_guesses){
+    /***
+     * Creates a password structure to hold solved passwords
+     * */
     Passwords* passwords = malloc(sizeof *passwords);
     assert(passwords);
     passwords->cracked = malloc(sizeof(char*)*passwords_to_guess);
@@ -29,6 +32,9 @@ Passwords* create_passwords(int passwords_to_guess, int n_guesses){
 }
 
 void add_new_cracked(Passwords * pwrds, char* pword){
+    /***
+     * Adds a cracked password
+     * */
     pwrds->cracked[pwrds->current_size] = calloc(6, sizeof(char*));
     assert(pwrds->cracked[pwrds->current_size]);
     memcpy(pwrds->cracked[pwrds->current_size], pword, strlen(pword));
@@ -37,10 +43,12 @@ void add_new_cracked(Passwords * pwrds, char* pword){
 }
 
 int remaining_passwords(Passwords *pwrds){
+    /* Returns the number of passwords left to crack*/
     return pwrds->passwords_left;
 }
 
 void free_passwords(Passwords* pwrds){
+    // Deallocates memory
     for(int i=0; i < pwrds->current_size; i++){
         free(pwrds->cracked[i]);
     }
@@ -49,20 +57,24 @@ void free_passwords(Passwords* pwrds){
 }
 
 void print_passwords(Passwords* pwrds){
+    // Prints passwords
     for(int i=0; i< pwrds->current_size; i++){
         printf("%s\n", pwrds->cracked[i]);
     }
 }
 
 void made_guess(Passwords* pwrds){
+    // Decreases the number of guesses
     pwrds->n_guesses--;
 }
 
 int get_remaining_guesses(Passwords* pwrds){
+    // Returns the number of guesses that can be made
     return pwrds->n_guesses;
 }
 
 int generate_common_subs_four(Passwords* solved, HashTable *ht){
+    // Generates passwords using common substituions
     if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
         return 0;
     }
@@ -82,12 +94,14 @@ int generate_common_subs_four(Passwords* solved, HashTable *ht){
         assert(subs[i]);
         subs_size[i] = 0;
         FILE *file = fopen("common_subs.txt", "r");
+        // Reads file of common subtitutions
         while (fgets(line, sizeof(line), file)){
             if(line[0] == word[i]){
                 characters[i] = line[0];
                 subs[i][subs_size[i]] = line[0];
                 subs_size[i]++;
                 token = strtok(strstr(line, s), s);
+                // Builds an array for common letter substitutions for each passwor character
                 while(token != NULL && strlen(token) == 1){
                     subs[i][subs_size[i]] = (char)*token;
                     subs_size[i]++;
@@ -99,6 +113,7 @@ int generate_common_subs_four(Passwords* solved, HashTable *ht){
     char sub_guess[4];
     int hash;
     SHA256_CTX ctx;
+    // Iterates and creates combinations of common substituions
     for(int i=0; i<subs_size[0]; i++){
         sub_guess[0] = subs[0][i];
         for(int j=0; j<subs_size[1]; j++){
@@ -113,11 +128,10 @@ int generate_common_subs_four(Passwords* solved, HashTable *ht){
                     BYTE guess[32];
                     sha256_final(&ctx, guess);
                     char* hex_guess = sha256_byteToHexString(guess);
-                    // printf("%s\n", sub_guess);
+                    // Checks if password cracked
                     if ((hash = hash_table_get(ht, hex_guess))>0){
                         printf("%s %d\n", sub_guess, hash);
                         add_new_cracked(solved, sub_guess);
-                        printf("remaining passwords are : %d\n", remaining_hashes(ht));
                     }
                     free(hex_guess);
                     made_guess(solved);
@@ -130,7 +144,7 @@ int generate_common_subs_four(Passwords* solved, HashTable *ht){
     }
 
 
-
+    // Deallocate memory
     for(int i=0; i < 4; i++){
         free(subs[i]);
     }
@@ -142,6 +156,7 @@ int generate_common_subs_four(Passwords* solved, HashTable *ht){
 
 
 int generate_common_subs_six(Passwords* solved, HashTable *ht){
+    // Generates passwords using common substituions
     if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
         return 0;
     }
@@ -161,12 +176,14 @@ int generate_common_subs_six(Passwords* solved, HashTable *ht){
         assert(subs[i]);
         subs_size[i] = 0;
         FILE *file = fopen("common_subs.txt", "r");
+        // Reads file of common subtitutions
         while (fgets(line, sizeof(line), file)){
             if(line[0] == word[i]){
                 characters[i] = line[0];
                 subs[i][subs_size[i]] = line[0];
                 subs_size[i]++;
                 token = strtok(strstr(line, s), s);
+                // Stores letter substituions in an array
                 while(token != NULL && strlen(token) == 1){
                     subs[i][subs_size[i]] = (char)*token;
                     subs_size[i]++;
@@ -178,6 +195,7 @@ int generate_common_subs_six(Passwords* solved, HashTable *ht){
     char sub_guess[6];
     int hash;
     SHA256_CTX ctx;
+    // Iterates and creates combinations of common substituions
     for(int i=0; i<subs_size[0]; i++){
         sub_guess[0] = subs[0][i];
         for(int j=0; j<subs_size[1]; j++){
@@ -196,11 +214,10 @@ int generate_common_subs_six(Passwords* solved, HashTable *ht){
                             BYTE guess[32];
                             sha256_final(&ctx, guess);
                             char* hex_guess = sha256_byteToHexString(guess);
-                            // printf("%s\n", sub_guess);
+                            // Checks if found a password
                             if ((hash = hash_table_get(ht, hex_guess))>0){
                                 printf("%s %d\n", sub_guess, hash);
                                 add_new_cracked(solved, sub_guess);
-                                printf("remaining passwords are : %d\n", remaining_hashes(ht));
                             }
                             free(hex_guess);
                             made_guess(solved);
@@ -213,6 +230,7 @@ int generate_common_subs_six(Passwords* solved, HashTable *ht){
             }
         }
     }
+    //Deallocate memory
     for(int i=0; i < 4; i++){
         free(subs[i]);
     }

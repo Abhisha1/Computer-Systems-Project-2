@@ -22,7 +22,7 @@ struct bucket {
 struct table {
 	int size; //number of buckets
 	Bucket *buckets; //list of buckets
-    int remaining;
+    int remaining; // checks number of remaining elements
 };
 
 /************************************************************************/
@@ -183,5 +183,6 @@ bool hash_table_has(HashTable *table, char *key) {
 }
 /************************************************************************/
 int remaining_hashes(HashTable *table){
+	/* Returns remaining elements in hash table*/
     return table->remaining;
 }

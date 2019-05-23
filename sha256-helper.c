@@ -5,6 +5,10 @@
 
 // adapted from https://github.com/RemyNoulin/sha256
 char *sha256_byteToHexString(BYTE data[]) {
+	/**
+	 * Converts the byte to a hexadecimal string
+	*/
+
 	char *hexC = "0123456789abcdef";
 	char *hexS = malloc(65);
     assert(hexS);

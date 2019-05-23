@@ -40,10 +40,7 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "usage %s hostname port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    char privKey[5];
-    memcpy(privKey, argv[2], 2);
-    privKey[2] = '\0';
-    int b = (int)strtol(privKey, NULL, 16);
+    int b = atoi(argv[2]);
     portno = 7800;
 
     /* Translate host name into peer's IP address ;

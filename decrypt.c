@@ -39,14 +39,9 @@ int read_hash_file_four(char *file_name, int n_guesses){
         while((c = getc(file)) != EOF){
             n +=sprintf(hashes+n,"%02x", c);
         }
-        // printf("%s",hashes);
         char **words = store_password_hashes(hashes);
 
         HashTable *password_hashes = new_hash_table(strlen(hashes)/64);
-        for(int i=0; i < strlen(hashes)/64; i++){
-            printf("%d:    %s\n", i, words[i]);
-            hash_table_put(password_hashes, words[i], (i+1));
-        };
         
         Passwords *cracked_passwords = create_passwords(strlen(hashes)/64, n_guesses);
         // Tries cracking passwords based on common passwords
@@ -56,9 +51,7 @@ int read_hash_file_four(char *file_name, int n_guesses){
         // Checks all combinations of four passwords
         brute_force_four(password_hashes, cracked_passwords);
         n_guesses = get_remaining_guesses(cracked_passwords);
-        print_passwords(cracked_passwords);
         for(int i=0; i < strlen(hashes)/64; i++){
-            printf("%d:    %s\n", i, words[i]);
             free(words[i]);
         };
         free(words);
@@ -90,7 +83,6 @@ void read_hash_file_six(char *file_name, int n_guesses){
         //creates hashtable of # of passwords
         HashTable *password_hashes = new_hash_table(strlen(hashes)/64);
         for(int i=0; i < strlen(hashes)/64; i++){
-            printf("%d:    %s\n", i, words[i]);
             hash_table_put(password_hashes, words[i], (i+1));
         };
         Passwords *cracked_passwords = create_passwords(strlen(hashes)/64, n_guesses);
@@ -128,13 +120,10 @@ void check_hashed_passwords(char *password_list, int n_guesses,char *file_name){
 
         //creates hashtable of # of passwords
         HashTable *password_hashes = new_hash_table(strlen(hashes)/64);
-        for(int i=0; i < strlen(hashes)/64; i++){
-            printf("%d:    %s\n", i, words[i]);
-            hash_table_put(password_hashes, words[i], (i+1));
-        };
         // Passwords to check against hashes
         FILE* pwrd_file = fopen(password_list, "r");
-        char line[20];
+        char line[100000];
+        memset(line, 0, 100000);
         SHA256_CTX ctx;
         int hash;
         while (fgets(line, sizeof(line), pwrd_file) && remaining_hashes(password_hashes) > 0){
@@ -151,7 +140,6 @@ void check_hashed_passwords(char *password_list, int n_guesses,char *file_name){
             }
             free(hex_guess);
         }
-        printf("finished file");
         fclose(pwrd_file);
         free(words);
         free_hash_table(password_hashes);
@@ -167,7 +155,6 @@ int main(int argc, char *argv[]){
     }
     else if(argc == 2){
         int n_guesses = atoi(argv[argc-1]);
-        printf("remaining passwords are : %d\n", n_guesses);
         // have n amount of guesses
         n_guesses = read_hash_file_four("pwd4sha256", n_guesses);
         if (n_guesses>0){
