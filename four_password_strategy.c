@@ -64,12 +64,13 @@ int popular_character_guess_four(HashTable *ht, Passwords* solved){
     SHA256_CTX ctx;
     int hash;
     char line[20];
+    memset(line, 0, 20);
     FILE *file = fopen("common_password_frequency.txt", "r");
     char frequent_characters[60];
+    memset(frequent_characters, 0, 60);
     int index = 0;
     // Ensures all passwords havent been guessed
     if (remaining_hashes(ht) == 0 || get_remaining_guesses(solved) == 0){
-        fclose(file);
         return 0;
     }
     while (fgets(line, sizeof(line), file)){
