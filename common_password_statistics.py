@@ -100,7 +100,7 @@ def get_character_frequencies():
     f.close()
 
 # create_common_password_substitutions()
-# get_character_frequencies()
+get_character_frequencies()
 
 def write_out_common_substitutions():
     f = open("common_subs.txt", "w")
@@ -114,4 +114,4 @@ def write_out_common_substitutions():
         f.write("\n")
     f.close()
 
-write_out_common_substitutions()
+# write_out_common_substitutions()

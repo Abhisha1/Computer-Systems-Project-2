@@ -129,9 +129,12 @@ int generate_common_subs_four(Passwords* solved, HashTable *ht){
                     sha256_final(&ctx, guess);
                     char* hex_guess = sha256_byteToHexString(guess);
                     // Checks if password cracked
-                    if ((hash = hash_table_get(ht, hex_guess))>0){
+                    if ((hash = hash_table_get(ht, hex_guess))>0 && get_remaining_guesses(solved) <=-1){
                         printf("%s %d\n", sub_guess, hash);
                         add_new_cracked(solved, sub_guess);
+                    }
+                    else if (get_remaining_guesses(solved) >0){
+                        printf("%s\n", sub_guess);
                     }
                     free(hex_guess);
                     made_guess(solved);
@@ -215,9 +218,12 @@ int generate_common_subs_six(Passwords* solved, HashTable *ht){
                             sha256_final(&ctx, guess);
                             char* hex_guess = sha256_byteToHexString(guess);
                             // Checks if found a password
-                            if ((hash = hash_table_get(ht, hex_guess))>0){
+                            if ((hash = hash_table_get(ht, hex_guess))>0 && get_remaining_guesses(solved) <=-1){
                                 printf("%s %d\n", sub_guess, hash);
                                 add_new_cracked(solved, sub_guess);
+                            }
+                            else if (get_remaining_guesses(solved) >0){
+                                printf("%s\n", sub_guess);
                             }
                             free(hex_guess);
                             made_guess(solved);

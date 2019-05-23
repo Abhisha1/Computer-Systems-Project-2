@@ -37,7 +37,7 @@ void brute_force_six(HashTable *ht, Passwords *solved){
                             BYTE guess[32];
                             sha256_final(&ctx, guess);
                             char* hex_guess = sha256_byteToHexString(guess);
-                            if ((hash = hash_table_get(ht, hex_guess))>0){
+                            if ((hash = hash_table_get(ht, hex_guess))>0 && get_remaining_guesses(solved) <= -1){
                                 printf("%s %d\n", brute_guess, hash);
                                 add_new_cracked(solved, brute_guess);
                                 // Tries generating guesses with common substituions for guessed password
@@ -45,6 +45,9 @@ void brute_force_six(HashTable *ht, Passwords *solved){
                                 if (get_remaining_guesses(solved) == 0 || remaining_hashes(ht) == 0){
                                     return;
                                 }
+                            }
+                            else if (get_remaining_guesses(solved) >0){
+                                printf("%s\n", brute_guess);
                             }
                             free(hex_guess);
                             made_guess(solved);
@@ -100,8 +103,8 @@ int popular_character_guess_six(HashTable *ht, Passwords *solved){
                             BYTE guess[32];
                             sha256_final(&ctx, guess);
                             char* hex_guess = sha256_byteToHexString(guess);
-                            // Checks if guess matched password hash
-                            if ((hash = hash_table_get(ht, hex_guess))>0){
+                            // Checks if guess matched password hash get_remaining_guesses(solved) <=-1
+                            if ((hash = hash_table_get(ht, hex_guess))>0 && get_remaining_guesses(solved) <=-1){
                                 printf("%s %d\n", brute_guess, hash);
                                 add_new_cracked(solved, brute_guess);
                                 //Finds common substituion guesses
@@ -109,6 +112,9 @@ int popular_character_guess_six(HashTable *ht, Passwords *solved){
                                 if (get_remaining_guesses(solved) == 0 || remaining_hashes(ht) == 0){
                                     return 0;
                                 }
+                            }
+                            else if (get_remaining_guesses(solved) >0){
+                                printf("%s\n", brute_guess);
                             }
                             free(hex_guess);
                             made_guess(solved);
@@ -142,7 +148,7 @@ int generate_guesses_six(char* file_name, HashTable *ht, Passwords *solved){
         sha256_final(&ctx, guess);
         char* hex_guess = sha256_byteToHexString(guess);
         // Checks for matching password
-        if ((hash = hash_table_get(ht, hex_guess))>0){
+        if ((hash = hash_table_get(ht, hex_guess))>0 && get_remaining_guesses(solved) <=-1){
             printf("%s %d\n", line, hash);
             add_new_cracked(solved, line);
             // Checks for common substituion with guessed password
@@ -150,6 +156,9 @@ int generate_guesses_six(char* file_name, HashTable *ht, Passwords *solved){
             if (get_remaining_guesses(solved) == 0 || remaining_hashes(ht) == 0){
                 return 0;
             }
+        }
+        else if (get_remaining_guesses(solved) >0){
+            printf("%s\n", line);
         }
         made_guess(solved);
         free(hex_guess);
