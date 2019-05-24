@@ -1,4 +1,5 @@
 from itertools import permutations
+# common letter substitutions
 common_substituions = {
     "a": ["A","@", "4"],
     "b": ["8", "B"],
@@ -54,6 +55,7 @@ common_substituions = {
     "Z": ["z", "5", "$"]
 }
 def create_substituions(word):
+    #creates a file of substitutions which is all possibly permutations
     f = open("substition.txt", "a")
     perms = [''.join(p) for p in permutations(word)]
     perms = list(dict.fromkeys(perms))
@@ -63,6 +65,7 @@ def create_substituions(word):
     f.close()
     print(perms)
 def create_replacements(word, file):
+    # replaces world and writes to file
     for x in range(len(word)):
         if (word[x] in common_substituions):
             for y in common_substituions[word[x]]:
@@ -71,6 +74,7 @@ def create_replacements(word, file):
                 file.write("\n")
 
 def create_common_password_substitutions():
+    # creates list of passwords with common replacements
     f = open("test.txt", "r")
     words = f.readlines()
     replacements = open("replacements_test.txt", "a")
@@ -82,6 +86,7 @@ def create_common_password_substitutions():
     f.close()
 
 def get_character_frequencies():
+    #gets the frequencies of characters and builds words
     f = open("proj-2_common_passwords.txt", "r")
     words = f.readlines()
     f.close()
@@ -103,6 +108,7 @@ def get_character_frequencies():
 get_character_frequencies()
 
 def write_out_common_substitutions():
+    # writes out common substituion words
     f = open("common_subs.txt", "w")
     for char, subs in common_substituions.items():
         f.write(char)
